@@ -1,13 +1,11 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-console */
 const todo = require('yargs');
-const fs = require('fs');
-const XLSX = require('xlsx');
 const mainFunctions = require('./mainFunctions');
 const advancedFunctions = require('./advancedFunctions');
-const fileFunctions = require('fileFunctions');
+const fileFunctions = require('./fileFunctions');
 
-todo.command('Add', 'makes an action with a file', function (yargs) {
+todo.command('Add', 'Adds the specified note to the file', function (yargs) {
   return yargs.options({
     'path': {
       alias: 'p',
@@ -27,10 +25,10 @@ todo.command('Add', 'makes an action with a file', function (yargs) {
   });
 },
 function (argv) {
-  const jsonObject = JSON.parse(fs.readFileSync('./' + argv.path + '.json', 'utf8'));
+  const jsonObject = fileFunctions.checkForFileExistense(argv.path, 'json');
   try {
     const validFile = mainFunctions.checkForFileContents(argv, jsonObject);
-    if (mainFunctions.checkForNotesWithNeededTitle(argv, validFile) === 0) {
+    if (mainFunctions.checkForNotesWithNeededTitle(argv.title, validFile) === 0) {
       mainFunctions.writeNote(argv, validFile);
     } else {
       throw new Error('Duplicates found! Please change the file');
@@ -39,7 +37,7 @@ function (argv) {
     console.log(err.message);
   }
 })
-  .command('List', 'makes an action with a file', function (yargs) {
+  .command('List', 'Lists file notes', function (yargs) {
     return yargs.options({
       'path': {
         alias: 'p',
@@ -50,14 +48,14 @@ function (argv) {
   },
   function (argv) {
     try {
-      const jsonObject = require('./' + argv.path + '.json');
+      const jsonObject = fileFunctions.checkForFileExistense(argv.path, 'json');
       mainFunctions.listNotes(argv, mainFunctions.checkForFileContents(argv, jsonObject));
     } catch (err) {
       console.log(err.message);
     }
   }
   )
-  .command('Read', 'makes an action with a file', function (yargs) {
+  .command('Read', 'Reads specified file note', function (yargs) {
     return yargs.options({
       'path': {
         alias: 'p',
@@ -73,14 +71,14 @@ function (argv) {
   },
   function (argv) {
     try {
-      const jsonObject = require('./' + argv.path + '.json');
+      const jsonObject = fileFunctions.checkForFileExistense(argv.path, 'json');
       mainFunctions.readNote(argv, mainFunctions.checkForFileContents(argv, jsonObject));
     } catch (err) {
       console.log(err.message);
     }
   }
   )
-  .command('Export', 'exports file to Excel', function (yargs) {
+  .command('Export', 'Exports file to Excel', function (yargs) {
     return yargs.options({
       'path': {
         alias: 'p',
@@ -91,14 +89,14 @@ function (argv) {
   },
   function (argv) {
     try {
-      const jsonObject = require('./' + argv.path + '.json');
+      const jsonObject = fileFunctions.checkForFileExistense(argv.path, 'json');
       fileFunctions.writeToExcel(argv, mainFunctions.checkForFileContents(argv, jsonObject));
     } catch (err) {
       console.log(err.message);
     }
   }
   )
-  .command('Import', 'imports file to Excel', function (yargs) {
+  .command('Import', 'Imports file to Excel', function (yargs) {
     return yargs.options({
       'path': {
         alias: 'p',
@@ -134,14 +132,14 @@ function (argv) {
   },
   function (argv) {
     try {
-      const jsonObject = require('./' + argv.path + '.json');
+      const jsonObject = fileFunctions.checkForFileExistense(argv.path, 'json');
       advancedFunctions.sortBy(argv, mainFunctions.checkForFileContents(argv, jsonObject));
     } catch (err) {
       console.log(err.message);
     }
   }
   )
-  .command('Update', 'makes an action with a file', function (yargs) {
+  .command('Update', 'Updates either note title or note body', function (yargs) {
     return yargs.options({
       'path': {
         alias: 'p',
@@ -167,10 +165,10 @@ function (argv) {
     });
   },
   function (argv) {
-    const jsonObject = require('./' + argv.path + '.json');
+    const jsonObject = fileFunctions.checkForFileExistense(argv.path, 'json');
     try {
       const validFile = mainFunctions.checkForFileContents(argv, jsonObject);
-      switch (mainFunctions.checkForNotesWithNeededTitle(argv, validFile)) {
+      switch (mainFunctions.checkForNotesWithNeededTitle(argv.title, validFile)) {
         case 0:
           throw new Error('Notes with such title are not found');
         case 1:
@@ -183,7 +181,7 @@ function (argv) {
       console.log(err.message);
     }
   })
-  .command('Remove', 'makes an action with a file', function (yargs) {
+  .command('Remove', 'Removes note from file', function (yargs) {
     return yargs.options({
       'path': {
         alias: 'p',
@@ -199,7 +197,7 @@ function (argv) {
   },
   function (argv) {
     try {
-      const jsonObject = require('./' + argv.path + '.json');
+      const jsonObject = fileFunctions.checkForFileExistense(argv.path, 'json');
       mainFunctions.removeNote(argv, mainFunctions.checkForFileContents(argv, jsonObject));
     } catch (err) {
       console.log(err.message);

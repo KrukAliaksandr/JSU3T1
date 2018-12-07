@@ -50,11 +50,12 @@ const removeNote = function removeNote (args, requiredFile) {
   });
 };
 
-const checkForNotesWithNeededTitle = function checkForNotesWithNeededTitle (args, file) {
+const checkForNotesWithNeededTitle = function (title, file) {
   const result = file.filter(function (note) {
-    return note.title === args.title;
+    console.log(note);
+    return note.title === title;
   });
-  console.log(result.length + ` notes with title "${args.title}" in file`);
+  console.log(`${result.length} notes with title "${title}" in file`);
   return result.length;
 };
 

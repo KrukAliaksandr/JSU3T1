@@ -1,14 +1,14 @@
 const fs = require('fs');
 const XLSX = require('xlsx');
 
-const writeToExcel = function writeToExcel (args, fileContents) {
+const writeToExcel = function (args, fileContents) {
   const workbook = XLSX.utils.book_new();
   const ws = XLSX.utils.json_to_sheet(fileContents);
   XLSX.utils.book_append_sheet(workbook, ws, 'Sheet1');
   XLSX.writeFile(workbook, args.path + '.xlsx');
 };
 
-const importFromExcel = function importFromExcel (args) {
+const importFromExcel = function (args) {
   const workbook = XLSX.readFile(args.path + '.xlsx');
   const sheetNames = workbook.SheetNames;
   const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
@@ -18,5 +18,16 @@ const importFromExcel = function importFromExcel (args) {
   });
 };
 
-module.exports.writeToExcel = writeToExcel;
-module.exports.importFromExcel = importFromExcel;
+const checkForFileExistense = function (path, extension) {
+  if (!fs.existsSync(`${path}.${extension}`)) {
+    fs.writeFileSync(`${path}.${extension} `, '[\r\n]', 'utf8');
+    console.log(`file ${path} does not exist. Created new file with same name`);
+  }
+  return JSON.parse(fs.readFileSync(`${path}.${extension}`, 'utf8'));
+};
+
+module.exports = {
+  writeToExcel,
+  importFromExcel,
+  checkForFileExistense
+};
