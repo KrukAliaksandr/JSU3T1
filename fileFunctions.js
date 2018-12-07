@@ -9,10 +9,19 @@ const writeToExcel = function (args, fileContents) {
 };
 
 const importFromExcel = function (args) {
+  const uniqueNotesMap = new Map();
+  const uniqueData = [];
   const workbook = XLSX.readFile(args.path + '.xlsx');
   const sheetNames = workbook.SheetNames;
   const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetNames[0]]);
-  fs.writeFile(args.path + '.json', JSON.stringify(data, null, '\t'), 'utf8', () => {
+  //проверка на дубликаты
+  data.forEach((note) => {
+    uniqueNotesMap.set(note.title, note);
+  });
+  uniqueNotesMap.forEach((value, key) => {
+    uniqueData.push(value);
+  });
+  fs.writeFile(args.path + '.json', JSON.stringify(uniqueData, null, '\t'), 'utf8', () => {
     // eslint-disable-next-line no-console
     console.log(args.path + '.xlsx successfully Imported');
   });
@@ -20,8 +29,8 @@ const importFromExcel = function (args) {
 
 const checkForFileExistense = function (path, extension) {
   if (!fs.existsSync(`${path}.${extension}`)) {
-    fs.writeFileSync(`${path}.${extension} `, '[\r\n]', 'utf8');
-    console.log(`file ${path} does not exist. Created new file with same name`);
+    fs.writeFileSync(`${path}.${extension}`, '[\r\n]', 'utf8');
+    console.log(`file ${path}.${extension} does not exist. Created new file with the same name`);
   }
   return JSON.parse(fs.readFileSync(`${path}.${extension}`, 'utf8'));
 };

@@ -172,7 +172,11 @@ function (argv) {
         case 0:
           throw new Error('Notes with such title are not found');
         case 1:
-          advancedFunctions.updateNote(argv, validFile);
+          if (mainFunctions.checkForNotesWithNeededTitle(argv.value, validFile) > 0 && argv.updateType === 'title') {
+            throw new Error('Notes with new value of title found');
+          } else {
+            advancedFunctions.updateNote(argv, validFile);
+          }
           break;
         default:
           throw new Error('Duplicates found! Please change the file');
